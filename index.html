@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Orchestra · Property Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F4F3F0;--su:#FFF;--s2:#F0F0EE;--s3:#F8F7F5;
+  --br:#E4E3E0;--bmd:#CECECA;
+  --t1:#0D0D0C;--t2:#636360;--t3:#A3A3A0;
+  --bl:#1C52FF;--blt:rgba(28,82,255,.07);--blb:rgba(28,82,255,.14);--bdk:#1240D9;
+  --gn:#059669;--glt:rgba(5,150,105,.08);--gdk:#047857;
+  --am:#C07A1A;--alt:rgba(192,122,26,.09);--adk:#9A6015;
+  --pu:#7C3AED;--plt:rgba(124,58,237,.08);--pdk:#6D28D9;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);font-size:13px;-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+
+/* ── Animations ── */
+@keyframes glowRing {0%{box-shadow:0 0 0 0 rgba(28,82,255,.45)}60%{box-shadow:0 0 0 7px rgba(28,82,255,0)}100%{box-shadow:0 0 0 0 rgba(28,82,255,0)}}
+@keyframes breathe  {0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes liveDot  {0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.7);opacity:.5}}
+@keyframes slideR   {from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes rowIn    {from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeUp   {from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pgIn     {from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tourOut  {to{opacity:0;transform:translateX(-24px)}}
+@keyframes tourIn   {from{opacity:0;transform:translateX(24px)}}
+@keyframes fillBar  {from{width:0}to{width:var(--w)}}
+@keyframes excIn    {from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── Shell ── */
+.shell{display:flex;height:100vh}
+
+/* ── Sidebar ── */
+.sidebar{width:230px;flex-shrink:0;height:100vh;background:var(--su);border-right:1px solid var(--br);display:flex;flex-direction:column}
+.sb-logo{height:56px;display:flex;align-items:center;padding:0 18px;gap:10px;border-bottom:1px solid var(--br);flex-shrink:0}
+.sb-wm{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.02em;color:var(--t1)}
+.sb-wm em{color:var(--bl);font-style:normal}
+.sb-org{font-size:10px;color:var(--t3);margin-top:1px}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto}
+.sb-grp-lbl{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;padding:10px 18px 4px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;transition:background .1s;user-select:none;border-left:2px solid transparent}
+.sb-item:hover{background:var(--s2)}
+.sb-item.active{background:var(--blt);border-left-color:var(--bl)}
+.sb-ico{width:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.sb-ico i{font-size:15px;color:var(--t3);transition:color .1s}
+.sb-item.active .sb-ico i{color:var(--bl)}
+.sb-tx{flex:1}
+.sb-lbl{font-size:12.5px;font-weight:500;color:var(--t2);line-height:1.2}
+.sb-item.active .sb-lbl{color:var(--bdk)}
+.sb-hint{font-size:10px;color:var(--t3);margin-top:1px}
+.sb-bdg{font-size:10px;font-weight:600;background:var(--bl);color:#fff;border-radius:10px;padding:1px 7px;flex-shrink:0}
+.sb-bdg.warn{background:var(--am)}
+.sb-foot{padding:12px 18px;border-top:1px solid var(--br);flex-shrink:0;display:flex;align-items:center;gap:10px}
+.sb-av{width:28px;height:28px;border-radius:50%;background:var(--blt);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--bdk);flex-shrink:0}
+.sb-uname{font-size:12px;font-weight:500;color:var(--t1)}
+.sb-urole{font-size:10px;color:var(--t3)}
+.tour-restart-btn{margin-left:auto;width:24px;height:24px;border-radius:5px;border:1px solid var(--br);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);transition:all .12s}
+.tour-restart-btn:hover{background:var(--s2);color:var(--t2)}
+
+/* ── Main ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.mhd{height:56px;flex-shrink:0;background:var(--su);border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 24px;gap:10px}
+.mhd-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--t1);letter-spacing:-.01em}
+.mhd-sep{color:var(--bmd);font-size:12px}
+.mhd-sub{font-size:11px;color:var(--t3)}
+.live-row{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:500;color:var(--gn);letter-spacing:.04em}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--gn);animation:liveDot 2s ease-in-out infinite}
+.mhd-right{margin-left:auto;display:flex;gap:7px;align-items:center}
+.hbtn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:500;color:var(--t2);background:transparent;border:1px solid var(--br);cursor:pointer;transition:all .12s}
+.hbtn i{font-size:14px}
+.hbtn:hover{background:var(--s2);border-color:var(--bmd);color:var(--t1)}
+.hbtn.prim{background:var(--bl);border-color:var(--bl);color:#fff}
+.hbtn.prim:hover{background:var(--bdk);border-color:var(--bdk)}
+
+/* ── Exc bar ── */
+.exc-bar{background:var(--alt);border-bottom:1px solid rgba(192,122,26,.18);padding:10px 24px;display:flex;align-items:center;gap:10px;flex-shrink:0;animation:excIn .3s ease}
+.exc-bar i{color:var(--am);font-size:15px;flex-shrink:0}
+.exc-txt{font-size:12px;color:var(--adk);flex:1}
+.exc-txt b{font-weight:500;color:var(--t1)}
+.exc-act{font-size:11px;font-weight:500;color:var(--adk);background:transparent;border:1px solid rgba(192,122,26,.3);padding:4px 10px;border-radius:5px;cursor:pointer;transition:all .12s}
+.exc-act:hover{background:rgba(192,122,26,.12)}
+.exc-cl{font-size:17px;color:var(--adk);background:none;border:none;cursor:pointer;opacity:.65}
+.exc-cl:hover{opacity:1}
+
+/* ── Page intro ── */
+.pg-intro{background:var(--blt);border-bottom:1px solid rgba(28,82,255,.12);padding:11px 24px;display:flex;align-items:flex-start;gap:10px;flex-shrink:0}
+.pg-intro i{color:var(--bl);font-size:15px;flex-shrink:0;margin-top:1px}
+.pg-intro-tx{flex:1;font-size:11.5px;color:var(--bdk);line-height:1.55}
+.pg-intro-tx b{font-weight:500;color:var(--t1)}
+.pg-intro-cl{font-size:11px;color:var(--bl);background:none;border:none;cursor:pointer;flex-shrink:0;padding:2px 0;transition:opacity .1s}
+.pg-intro-cl:hover{opacity:.7}
+
+/* ── Pages ── */
+.pages-wrap{flex:1;overflow:hidden}
+.page{display:none;height:100%;flex-direction:column;animation:pgIn .18s ease}
+.page.active{display:flex}
+.pgsc{flex:1;overflow-y:auto}
+.pgsc::-webkit-scrollbar{width:4px}
+.pgsc::-webkit-scrollbar-thumb{background:var(--bmd);border-radius:2px}
+
+/* ─────────────────────────
+   PIPELINE
+───────────────────────── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);background:var(--br);gap:1px;border-bottom:1px solid var(--br);flex-shrink:0}
+.mc{background:var(--su);padding:20px 24px 18px}
+.mc.hl{background:var(--glt)}
+.mc-num{font-family:'Space Grotesk',sans-serif;font-size:48px;font-weight:600;line-height:1;letter-spacing:-.04em;color:var(--t1);margin-bottom:5px}
+.mc.hl .mc-num{color:var(--gn)}
+.mc-lbl{font-size:11px;color:var(--t3)}
+.mc-note{font-size:10px;color:var(--gdk);margin-top:4px;display:flex;align-items:center;gap:4px}
+.pg-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 8px}
+.pg-bar-t{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.08em;text-transform:uppercase}
+.pg-bar-h{font-size:10px;color:var(--t3)}
+.txn{padding:16px 24px 18px;border-bottom:1px solid var(--br);cursor:pointer;transition:background .12s;background:var(--su)}
+.txn:hover{background:var(--s3)}
+.txn-r1{animation:rowIn .3s ease .05s both}
+.txn-r2{animation:rowIn .3s ease .1s both}
+.txn-r3{animation:rowIn .3s ease .15s both}
+.txn-meta{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.txn-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--t1);letter-spacing:-.01em;margin-bottom:3px}
+.txn-addr{font-size:11.5px;color:var(--t2)}
+.txn-ri{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.txn-val{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600}
+.srow{display:flex;align-items:center;gap:5px}
+.pip{width:7px;height:7px;border-radius:50%}
+.pip-b{background:var(--bl);animation:liveDot 2s ease-in-out infinite}
+.pip-a{background:var(--am);animation:breathe 1.5s ease-in-out infinite}
+.slbl{font-size:11px;font-weight:500}
+/* Track */
+.track{display:flex;align-items:flex-start;padding:0 2px}
+.ts{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.tn{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;position:relative;z-index:1}
+.tc{flex:1;margin-top:11px;height:1.5px;min-width:16px}
+.tc-d{background:var(--gn)}
+.tc-p{background:repeating-linear-gradient(90deg,var(--bmd) 0,var(--bmd) 5px,transparent 5px,transparent 10px)}
+.ti{margin-top:7px;text-align:center;min-width:68px;max-width:88px}
+.tl{font-size:9px;font-weight:500;color:var(--t2);line-height:1.3}
+.to{font-size:8px;color:var(--t3);margin-top:1px}
+.tt{font-size:8px;font-weight:500;margin-top:1px}
+.ts.s-done .tn{background:var(--gn);color:#fff}
+.ts.s-done .tl{color:var(--t2)}
+.ts.s-done .tt{color:var(--gdk)}
+.ts.s-act  .tn{background:var(--su);border:2px solid var(--bl);color:var(--bl);animation:glowRing 2s ease-in-out infinite}
+.ts.s-act  .tl{color:var(--t1);font-weight:600}
+.ts.s-act  .tt{color:var(--bl)}
+.ts.s-wait .tn{background:var(--s2);border:1.5px solid var(--bmd);color:var(--t3)}
+.ts.s-wait .tl{color:var(--t3)}
+.ts.s-st   .tn{background:var(--alt);border:1.5px solid var(--am);color:var(--am);animation:breathe 1.5s ease-in-out infinite}
+.ts.s-st   .tl{color:var(--adk);font-weight:600}
+.ts.s-st   .tt{color:var(--am)}
+
+/* ─────────────────────────
+   APPROVALS
+───────────────────────── */
+.appr-filter{display:flex;gap:6px;padding:12px 24px;border-bottom:1px solid var(--br);background:var(--su);flex-shrink:0}
+.fchip{font-size:10px;font-weight:500;padding:3px 10px;border-radius:4px;border:1px solid var(--br);background:transparent;color:var(--t3);cursor:pointer;transition:all .1s}
+.fchip:hover{border-color:var(--bmd);color:var(--t2)}
+.fchip.on{border-color:rgba(28,82,255,.25);background:var(--blt);color:var(--bdk)}
+.appr-list{padding:16px 24px;display:flex;flex-direction:column;gap:12px}
+.acard{background:var(--su);border:1px solid var(--br);border-radius:10px;padding:18px;transition:opacity .22s,transform .22s,max-height .28s,padding .28s;max-height:500px;overflow:hidden}
+.acard.clearing{opacity:0;transform:translateX(14px);max-height:0;padding:0}
+/* Mini track inside approval card */
+.acard-track{margin-bottom:14px}
+.atrack{display:flex;align-items:flex-start;padding:0}
+.atrack-step{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.atrack-node{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600}
+.atrack-conn{flex:1;margin-top:8.5px;height:1px;min-width:12px}
+.atrack-conn.d{background:var(--gn)}
+.atrack-conn.p{background:repeating-linear-gradient(90deg,var(--bmd) 0,var(--bmd) 4px,transparent 4px,transparent 8px)}
+.atrack-lbl{margin-top:5px;font-size:8px;text-align:center;color:var(--t3);min-width:50px;max-width:60px;font-weight:500;line-height:1.2}
+.atrack-step.t-done  .atrack-node{background:var(--gn);color:#fff}
+.atrack-step.t-done  .atrack-lbl{color:var(--gdk)}
+.atrack-step.t-here  .atrack-node{background:var(--am);color:#fff;animation:breathe 1.4s ease-in-out infinite}
+.atrack-step.t-here  .atrack-lbl{color:var(--adk);font-weight:600}
+.atrack-step.t-wait  .atrack-node{background:var(--s2);border:1px solid var(--bmd);color:var(--t3)}
+.atrack-blocker{margin-top:7px;font-size:10px;color:var(--adk);background:var(--alt);border-radius:5px;padding:5px 10px;display:flex;align-items:center;gap:6px}
+.acard-main-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px}
+.acard-title{font-size:12.5px;font-weight:500;color:var(--t1)}
+.acard-sub{font-size:10px;color:var(--t3);margin-top:3px}
+.ctx-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.ctx-tag{font-size:9.5px;padding:2px 8px;border-radius:4px;background:var(--s2);color:var(--t2);border:1px solid var(--br)}
+.acard-body{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:12px}
+.acard-acts{display:flex;gap:7px}
+.abtn{font-size:11px;font-weight:500;padding:6px 14px;border-radius:5px;cursor:pointer;border:none;transition:opacity .1s}
+.abtn:hover{opacity:.82}
+.abtn.ap{background:var(--glt);color:var(--gdk)}
+.abtn.rj{background:var(--s2);color:var(--t2);border:1px solid var(--br)}
+.abtn.if{background:var(--blt);color:var(--bdk)}
+.past-sec{padding:0 24px 24px}
+.past-hdg{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;padding-top:16px;border-top:1px solid var(--br)}
+.past-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--br)}
+.past-row:last-child{border-bottom:none}
+.past-who{font-size:12px;color:var(--t2);flex:1}
+.past-who b{font-weight:500;color:var(--t1)}
+.past-dec{font-size:10px;font-weight:500}
+.pd-ok{color:var(--gdk)}
+.pd-no{color:var(--t3)}
+.past-when{font-size:10px;color:var(--t3)}
+
+/* ─────────────────────────
+   PARTIES (grid)
+───────────────────────── */
+.parties-grid{padding:16px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.pc{background:var(--su);border:1px solid var(--br);border-radius:10px;padding:16px;transition:border-color .12s,box-shadow .12s;cursor:default}
+.pc:hover{border-color:var(--bmd)}
+.pc.pc-stall{border-color:rgba(192,122,26,.3);background:rgba(192,122,26,.025)}
+.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.pc-av{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.pc-type{font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;letter-spacing:.03em}
+.pc-name{font-size:12.5px;font-weight:500;color:var(--t1);margin-bottom:10px;line-height:1.3}
+.pc-orch-lbl{font-size:9px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.pc-orch-action{font-size:11px;color:var(--t2);line-height:1.4}
+.pc-orch-action b{font-weight:500;color:var(--t1)}
+.pc-orch-action.warn{color:var(--adk)}
+.pc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--br)}
+.pc-flow{font-size:10px;color:var(--t3)}
+.pc-status{font-size:9px;font-weight:600;padding:2px 7px;border-radius:10px}
+.pcs-ok  {background:var(--glt);color:var(--gdk)}
+.pcs-wait{background:var(--s2);color:var(--t3);border:1px solid var(--br)}
+.pcs-stall{background:var(--alt);color:var(--adk)}
+.pcs-done{background:var(--glt);color:var(--gdk)}
+
+/* ─────────────────────────
+   BUILDER
+───────────────────────── */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 24px;border-bottom:1px solid var(--br)}
+.tpl{background:var(--su);border:1.5px solid var(--br);border-radius:10px;padding:16px;cursor:pointer;transition:all .15s}
+.tpl:hover{border-color:var(--bmd);background:var(--s3)}
+.tpl.sel{border-color:var(--bl);background:var(--blt)}
+.tpl-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.tpl-ico{width:32px;height:32px;border-radius:8px;background:var(--blt);display:flex;align-items:center;justify-content:center}
+.tpl-ico i{font-size:16px;color:var(--bl)}
+.tpl.sel .tpl-ico{background:var(--bl)}
+.tpl.sel .tpl-ico i{color:#fff}
+.tpl-nm{font-size:12.5px;font-weight:500;color:var(--t1)}
+.tpl-st{font-size:10px;color:var(--t3);margin-top:1px}
+/* Mini flow preview in template card */
+.tpl-preview{display:flex;align-items:center;margin-bottom:9px;overflow:hidden}
+.tp-node{font-size:8px;font-weight:500;padding:3px 7px;border-radius:4px;background:var(--s2);color:var(--t2);border:1px solid var(--br);white-space:nowrap;flex-shrink:0}
+.tp-node.tp-done{background:var(--glt);color:var(--gdk);border-color:rgba(5,150,105,.15)}
+.tp-node.tp-act{background:var(--blt);color:var(--bdk);border-color:rgba(28,82,255,.2)}
+.tp-node.tp-more{background:var(--s2);color:var(--t3)}
+.tp-arr{font-size:9px;color:var(--t3);padding:0 3px;flex-shrink:0}
+.tpl-desc{font-size:11px;color:var(--t3)}
+.bdr-body{padding:18px 24px}
+.bdr-lbl{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.bdr-flow{display:flex;align-items:center;overflow-x:auto;padding-bottom:8px;margin-bottom:16px}
+.bdr-flow::-webkit-scrollbar{height:3px}
+.bdr-flow::-webkit-scrollbar-thumb{background:var(--bmd);border-radius:2px}
+.bnode{background:var(--su);border:1px solid var(--br);border-radius:7px;padding:10px 14px;flex-shrink:0;width:128px;cursor:pointer;transition:all .12s}
+.bnode.bsel{border-color:rgba(28,82,255,.35);background:rgba(28,82,255,.04)}
+.bnode:hover:not(.bsel){border-color:var(--bmd)}
+.bn-type{font-size:9px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.bn-name{font-size:11.5px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bn-own{font-size:10px;color:var(--t3);margin-top:3px}
+.barr{color:var(--t3);padding:0 6px;font-size:12px;flex-shrink:0}
+.badd{width:32px;height:32px;border:1px dashed var(--bmd);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t3);cursor:pointer;flex-shrink:0;transition:all .12s;user-select:none}
+.badd:hover{border-color:rgba(28,82,255,.35);color:var(--bl);background:var(--blt)}
+.cfg-panel{background:var(--su);border:1px solid var(--br);border-radius:9px;padding:18px}
+.cfg-title{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:14px;font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cfg-field label{font-size:10px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px}
+.cfg-in{width:100%;background:var(--su);border:1px solid var(--br);border-radius:5px;padding:7px 10px;font-size:12px;color:var(--t1);outline:none;transition:border-color .12s}
+.cfg-in:focus{border-color:rgba(28,82,255,.35)}
+.cfg-sel{width:100%;background:var(--su);border:1px solid var(--br);border-radius:5px;padding:7px 10px;font-size:12px;color:var(--t1);outline:none;cursor:pointer}
+.tpills{display:flex;gap:5px;flex-wrap:wrap}
+.tpill{font-size:10px;font-weight:500;padding:4px 10px;border-radius:4px;border:1px solid var(--br);background:transparent;color:var(--t2);cursor:pointer;transition:all .1s}
+.tpill:hover{border-color:var(--bmd);color:var(--t1)}
+.tpill.on{border-color:rgba(28,82,255,.28);background:var(--blt);color:var(--bdk)}
+.bdr-acts{display:flex;gap:8px;margin-top:16px}
+.btn-lnch{font-size:12px;font-weight:500;padding:8px 18px;border-radius:6px;background:var(--bl);color:#fff;border:none;cursor:pointer;transition:opacity .12s}
+.btn-lnch:hover{opacity:.88}
+.btn-lnch:disabled{opacity:.5;cursor:not-allowed}
+.btn-save{font-size:12px;padding:8px 16px;border-radius:6px;background:transparent;color:var(--t2);border:1px solid var(--br);cursor:pointer;transition:all .12s}
+.btn-save:hover{border-color:var(--bmd);color:var(--t1)}
+
+/* ─────────────────────────
+   INSIGHTS
+───────────────────────── */
+.ins-metrics{display:grid;grid-template-columns:repeat(4,1fr);background:var(--br);gap:1px;border-bottom:1px solid var(--br);flex-shrink:0}
+.im{background:var(--su);padding:18px 22px}
+.im-num{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:600;letter-spacing:-.03em;color:var(--t1);line-height:1;margin-bottom:4px}
+.im-lbl{font-size:10px;color:var(--t3)}
+.im-trend{font-size:10px;color:var(--gdk);margin-top:4px;display:flex;align-items:center;gap:3px}
+.im.hl .im-num{color:var(--gdk)}
+.ins-section{padding:20px 24px;border-bottom:1px solid var(--br)}
+.ins-title{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.chart-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.chart-row:last-child{margin-bottom:0}
+.chart-mo{font-size:11px;color:var(--t2);min-width:28px}
+.chart-track{flex:1;height:30px;background:var(--s2);border-radius:5px;overflow:hidden;position:relative}
+.chart-fill{height:100%;border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;width:0;transition:width 1.2s cubic-bezier(.25,.46,.45,.94)}
+.chart-fill-n{font-size:11px;font-weight:500;color:#fff}
+.chart-detail{font-size:10px;color:var(--t3);min-width:60px;text-align:right}
+.step-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.step-bar-row:last-child{margin-bottom:0}
+.step-bar-lbl{font-size:12px;color:var(--t1);min-width:180px}
+.step-bar-wrap{flex:1;height:10px;background:var(--s2);border-radius:5px;overflow:hidden}
+.step-bar{height:100%;border-radius:5px;width:0;transition:width 1.3s cubic-bezier(.25,.46,.45,.94)}
+.step-bar-val{font-size:11px;font-weight:500;color:var(--t2);min-width:90px;text-align:right}
+.bottleneck-tag{font-size:9px;font-weight:600;padding:1px 7px;border-radius:10px;background:var(--alt);color:var(--adk);margin-left:6px}
+
+/* ─────────────────────────
+   AUDIT TIMELINE
+───────────────────────── */
+.audit-filter{display:flex;gap:6px;padding:12px 24px;border-bottom:1px solid var(--br);background:var(--su);flex-shrink:0}
+.timeline{padding:0 24px 24px}
+.tl-day{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;padding:18px 0 10px;display:flex;align-items:center;gap:12px}
+.tl-day::after{content:'';flex:1;height:1px;background:var(--br)}
+.tl-event{display:flex;gap:14px;padding-bottom:14px;position:relative}
+.tl-event:last-of-type{padding-bottom:0}
+.tl-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:15px}
+.tl-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;margin-top:2px;z-index:1}
+.tl-line{width:1px;background:var(--br);flex:1;margin-top:4px}
+.tl-event:last-child .tl-line{display:none}
+.tl-body{flex:1;min-width:0;padding-bottom:0}
+.tl-meta{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.tl-time{font-size:10px;color:var(--t3);font-variant-numeric:tabular-nums}
+.tl-type-tag{font-size:9px;font-weight:600;padding:1px 7px;border-radius:10px;letter-spacing:.03em}
+.tl-desc{font-size:12px;color:var(--t2);line-height:1.4}
+.tl-desc b{color:var(--t1);font-weight:500}
+.tl-actor{font-size:10px;color:var(--t3);margin-top:3px}
+/* Event type styling */
+.te-routing  .tl-dot{background:var(--bl)}
+.te-routing  .tl-type-tag{background:var(--blt);color:var(--bdk)}
+.te-approval .tl-dot{background:var(--gn)}
+.te-approval .tl-type-tag{background:var(--glt);color:var(--gdk)}
+.te-exception .tl-dot{background:var(--am)}
+.te-exception .tl-type-tag{background:var(--alt);color:var(--adk)}
+.te-exception .tl-desc{color:var(--adk)}
+.te-completion .tl-dot{background:var(--gn)}
+.te-completion .tl-type-tag{background:var(--glt);color:var(--gdk)}
+
+/* ─────────────────────────
+   SETTINGS
+───────────────────────── */
+.settings-body{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.sc{background:var(--su);border:1px solid var(--br);border-radius:10px;overflow:hidden}
+.sc-hd{padding:14px 18px;border-bottom:1px solid var(--br);font-size:12.5px;font-weight:500;color:var(--t1);display:flex;align-items:center;justify-content:space-between}
+.sc-hd-sub{font-size:10px;color:var(--t3);font-weight:400}
+.team-row{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--br)}
+.team-row:last-of-type{border-bottom:none}
+.team-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.team-name{font-size:12px;font-weight:500;color:var(--t1)}
+.team-role{font-size:10px;color:var(--t3)}
+.team-on{font-size:10px;color:var(--gdk);background:var(--glt);padding:2px 8px;border-radius:10px;margin-left:auto;flex-shrink:0}
+.invite-row{display:flex;align-items:center;gap:8px;padding:11px 18px;cursor:pointer;color:var(--bl);font-size:12px;font-weight:500;transition:background .1s;border-top:1px solid var(--br)}
+.invite-row:hover{background:var(--blt)}
+.intg-row{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--br)}
+.intg-row:last-child{border-bottom:none}
+.intg-ic{width:30px;height:30px;border-radius:7px;background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.intg-ic i{font-size:15px;color:var(--t2)}
+.intg-nm{font-size:12px;font-weight:500;color:var(--t1)}
+.intg-ds{font-size:10px;color:var(--t3)}
+.intg-ri{margin-left:auto}
+.intg-on{font-size:10px;font-weight:500;color:var(--gdk);background:var(--glt);padding:2px 8px;border-radius:10px}
+.intg-btn{font-size:10px;font-weight:500;color:var(--bdk);background:var(--blt);padding:4px 10px;border-radius:4px;cursor:pointer;border:none;transition:background .1s}
+.intg-btn:hover{background:var(--blb)}
+
+/* ─────────────────────────
+   RIGHT PANEL
+───────────────────────── */
+.backdrop{position:fixed;left:230px;right:0;top:0;bottom:0;background:rgba(13,13,12,.1);opacity:0;pointer-events:none;transition:opacity .25s;z-index:80}
+.backdrop.on{opacity:1;pointer-events:all}
+.rpanel{position:fixed;top:0;right:0;bottom:0;width:420px;background:var(--su);border-left:1px solid var(--br);z-index:90;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);overflow:hidden}
+.rpanel.open{transform:translateX(0)}
+.rp-hd{height:52px;flex-shrink:0;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid var(--br);gap:10px}
+.rp-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.01em}
+.rp-cl{width:26px;height:26px;border-radius:5px;border:1px solid var(--br);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);transition:all .12s}
+.rp-cl:hover{background:var(--s2);color:var(--t1)}
+.rp-body{flex:1;overflow-y:auto}
+.rp-body::-webkit-scrollbar{width:3px}
+.rp-body::-webkit-scrollbar-thumb{background:var(--bmd);border-radius:2px}
+.rp-prop{padding:14px 18px;border-bottom:1px solid var(--br);background:var(--s2);animation:fadeUp .22s ease .08s both}
+.rp-addr{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--t1);letter-spacing:-.01em}
+.rp-meta{font-size:11px;color:var(--t2);margin-top:3px}
+.rp-val{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;color:var(--gdk);margin-top:8px}
+.rp-sec{padding:14px 18px;border-bottom:1px solid var(--br);animation:fadeUp .22s ease both}
+.rp-sec:nth-child(2){animation-delay:.12s}
+.rp-sec:nth-child(3){animation-delay:.18s}
+.rp-stitle{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.pstep{display:flex;gap:11px;margin-bottom:11px}
+.pstep:last-child{margin-bottom:0}
+.psn{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;margin-top:1px}
+.ps-done .psn{background:var(--gn);color:#fff}
+.ps-act  .psn{background:var(--blt);border:2px solid var(--bl);color:var(--bl);animation:glowRing 2s ease-in-out infinite}
+.ps-wait .psn{background:var(--s2);border:1.5px solid var(--bmd);color:var(--t3)}
+.psb{flex:1}
+.pst{font-size:12px;font-weight:500;color:var(--t1)}
+.pst.dm{color:var(--t3)}
+.pso{font-size:10px;color:var(--t3);margin-top:2px}
+.pss{font-size:10px;font-weight:500}
+.ps-done .pss{color:var(--gdk)}
+.ps-act  .pss{color:var(--bdk)}
+.ps-wait .pss{color:var(--t3)}
+.ple{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--br);align-items:baseline}
+.ple:last-child{border-bottom:none}
+.ple-ts{font-size:10px;color:var(--t3);min-width:36px;font-variant-numeric:tabular-nums}
+.ple-msg{font-size:11px;color:var(--t2);line-height:1.4}
+.ple-msg b{color:var(--t1);font-weight:500}
+.ple-w{color:var(--am)!important}
+
+/* ─────────────────────────
+   TOUR MODAL
+───────────────────────── */
+.tour-ov{position:fixed;inset:0;background:rgba(13,13,12,.82);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px}
+.tour-ov.hidden{display:none}
+.tour-modal{background:var(--su);border-radius:16px;width:560px;max-width:100%;padding:44px;position:relative;overflow:hidden}
+.tour-dots{display:flex;gap:6px;margin-bottom:32px}
+.tour-dot{height:6px;border-radius:3px;background:var(--br);transition:width .3s,background .3s}
+.tour-dot.on{background:var(--bl);width:20px}
+.tour-dot:not(.on){width:6px}
+.tour-content{min-height:200px;position:relative}
+.tour-content.tout{animation:tourOut .2s ease forwards}
+.tour-content.tin {animation:tourIn .2s ease forwards}
+.tour-tag{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--bl);margin-bottom:14px}
+.tour-hl{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:600;letter-spacing:-.02em;color:var(--t1);line-height:1.2;margin-bottom:14px}
+.tour-hl em{color:var(--bl);font-style:normal}
+.tour-body{font-size:14px;color:var(--t2);line-height:1.65}
+.tour-stat{display:inline-flex;align-items:baseline;gap:6px;background:var(--glt);border:1px solid rgba(5,150,105,.15);border-radius:8px;padding:10px 16px;margin-top:16px}
+.tour-stat-num{font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:600;color:var(--gn);letter-spacing:-.04em;line-height:1}
+.tour-stat-lbl{font-size:12px;color:var(--gdk);font-weight:500}
+.tour-foot{display:flex;align-items:center;justify-content:space-between;margin-top:36px;padding-top:28px;border-top:1px solid var(--br)}
+.tour-skip{font-size:12px;color:var(--t3);background:none;border:none;cursor:pointer;transition:color .1s}
+.tour-skip:hover{color:var(--t2)}
+.tour-next{padding:10px 24px;border-radius:8px;background:var(--bl);color:#fff;border:none;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:7px;transition:opacity .12s;font-family:inherit}
+.tour-next:hover{opacity:.88}
+.tour-next i{font-size:15px}
+
+/* ─────────────────────────
+   BADGES / MISC
+───────────────────────── */
+.badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
+.b-blue {background:var(--blt); color:var(--bdk)}
+.b-green{background:var(--glt); color:var(--gdk)}
+.b-amber{background:var(--alt); color:var(--adk)}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     TOUR MODAL
+══════════════════════════════════════ -->
+<div class="tour-ov" id="tour-ov">
+  <div class="tour-modal">
+    <div class="tour-dots" id="tour-dots"></div>
+    <div class="tour-content" id="tour-content"></div>
+    <div class="tour-foot">
+      <button class="tour-skip" onclick="closeTour()">Skip tour</button>
+      <button class="tour-next" id="tour-next-btn" onclick="tourNext()">
+        Next <i class="ti ti-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════ -->
+<div class="shell">
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div>
+      <div class="sb-wm">ORCH<em>E</em>STRA</div>
+      <div class="sb-org">Meridian Property Group</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-grp-lbl">Operations</div>
+    <div class="sb-item active" data-page="pipeline" onclick="navigate('pipeline')">
+      <div class="sb-ico"><i class="ti ti-layout-dashboard"></i></div>
+      <div class="sb-tx"><div class="sb-lbl">Pipeline</div><div class="sb-hint">Live transactions</div></div>
+      <div class="sb-bdg warn" id="exc-sbbdg">!</div>
+    </div>
+    <div class="sb-item" data-page="approvals" onclick="navigate('approvals')">
+      <div class="sb-ico"><i class="ti ti-circle-check"></i></div>
+      <div class="sb-tx"><div class="sb-lbl">Approvals</div><div class="sb-hint">Pending decisions</div></div>
+      <div class="sb-bdg" id="appr-sbbdg">3</div>
+    </div>
+    <div class="sb-item" data-page="parties" onclick="navigate('parties')">
+      <div class="sb-ico"><i class="ti ti-users"></i></div>
+      <div class="sb-tx"><div class="sb-lbl">Parties</div><div class="sb-hint">Who Orchestra coordinates</div></div>
+    </div>
+    <div class="sb-item" data-page="builder" onclick="navigate('builder')">
+      <div class="sb-ico"><i class="ti ti-git-branch"></i></div>
+      <div class="sb-tx"><div class="sb-lbl">Flow builder</div><div class="sb-hint">Create workflows</div></div>
+    </div>
+    <div class="sb-grp-lbl" style="margin-top:4px">Intelligence</div>
+    <div class="sb-item" data-page="insights" onclick="navigate('insights')">
+      <div class="sb-ico"><i class="ti ti-chart-bar"></i></div>
+      <div class="sb-tx"><div class="sb-lbl">Insights</div><div class="sb-hint">Performance &amp; bottlenecks</div></div>
+    </div>
+    <div class="sb-item" data-page="audit" onclick="navigate('audit')">
+      <div class="sb-ico"><i class="ti ti-list-details"></i></div>
+      <div class="sb-tx"><div class="sb-lbl">Audit log</div><div class="sb-hint">Complete record</div></div>
+    </div>
+    <div class="sb-item" data-page="settings" onclick="navigate('settings')">
+      <div class="sb-ico"><i class="ti ti-settings"></i></div>
+      <div class="sb-tx"><div class="sb-lbl">Settings</div><div class="sb-hint">Team &amp; integrations</div></div>
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-av">SM</div>
+    <div><div class="sb-uname">Sarah Mills</div><div class="sb-urole">Property Manager</div></div>
+    <button class="tour-restart-btn" onclick="restartTour()" title="Restart tour"><i class="ti ti-help" style="font-size:13px"></i></button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════
+     MAIN
+══════════════════════════════════════ -->
+<div class="main">
+  <div class="mhd">
+    <div class="mhd-title" id="mhd-title">Pipeline</div>
+    <div class="mhd-sep">/</div>
+    <div class="mhd-sub" id="mhd-sub">3 active transactions</div>
+    <div class="mhd-right">
+      <div class="live-row"><div class="live-dot"></div>LIVE</div>
+      <div id="mhd-acts"><button class="hbtn prim" onclick="navigate('builder')"><i class="ti ti-plus"></i> New flow</button></div>
+    </div>
+  </div>
+
+  <!-- Exception bar -->
+  <div class="exc-bar" id="exc-bar">
+    <i class="ti ti-alert-triangle"></i>
+    <div class="exc-txt"><b>Pacific Maintenance Co</b> — Insurance certificate overdue (Day 2). Documents now received and verified. Director sign-off is the final step.</div>
+    <button class="exc-act" onclick="navigate('approvals')">Review in Approvals →</button>
+    <button class="exc-cl" onclick="dismissExc()">×</button>
+  </div>
+
+  <div class="pages-wrap">
+
+  <!-- ═══════════ PIPELINE ═══════════ -->
+  <div class="page active" id="p-pipeline">
+    <div class="metrics">
+      <div class="mc"><div class="mc-num" id="m1">0</div><div class="mc-lbl">Active transactions</div></div>
+      <div class="mc"><div class="mc-num" id="m2">$0M</div><div class="mc-lbl">In pipeline</div></div>
+      <div class="mc"><div class="mc-num" id="m3">0</div><div class="mc-lbl">Settled this month</div></div>
+      <div class="mc hl"><div class="mc-num" id="m4">0</div><div class="mc-lbl">Manual follow-ups today</div><div class="mc-note"><i class="ti ti-check" style="font-size:11px"></i>All coordination automated</div></div>
+    </div>
+    <div class="pgsc">
+      <div class="pg-bar"><span class="pg-bar-t">Active now</span><span class="pg-bar-h">Click any transaction to view detail &amp; log</span></div>
+      <div class="txn txn-r1" onclick="openPanel('sale')">
+        <div class="txn-meta">
+          <div><div class="txn-name">Property Sale</div><div class="txn-addr">4 Merriway Drive, Glenelg SA 5045 · Vendor: R. &amp; T. Okafor · Buyer: J. Hoffman · Agent: S. Mills</div></div>
+          <div class="txn-ri"><div class="txn-val" style="color:var(--gdk)">$1,185,000</div><div class="srow"><div class="pip pip-b"></div><span class="slbl" style="color:var(--bl)">Running</span></div></div>
+        </div>
+        <div class="track">
+          <div class="ts s-done"><div class="tn">✓</div><div class="ti"><div class="tl">Offer accepted</div><div class="to">S. Mills</div><div class="tt">Done</div></div></div>
+          <div class="tc tc-d"></div>
+          <div class="ts s-done"><div class="tn">✓</div><div class="ti"><div class="tl">Finance check</div><div class="to">NAB</div><div class="tt">Confirmed</div></div></div>
+          <div class="tc tc-p"></div>
+          <div class="ts s-act"><div class="tn">3</div><div class="ti"><div class="tl">Inspection</div><div class="to">Harrison Prop.</div><div class="tt" data-elapsed="10800">3h 0m</div></div></div>
+          <div class="tc tc-p"></div>
+          <div class="ts s-wait"><div class="tn">4</div><div class="ti"><div class="tl">Title search</div><div class="to">Adel. Conveyancers</div></div></div>
+          <div class="tc tc-p"></div>
+          <div class="ts s-wait"><div class="tn">5</div><div class="ti"><div class="tl">Exchange</div><div class="to">Both solicitors</div></div></div>
+          <div class="tc tc-p"></div>
+          <div class="ts s-wait"><div class="tn">6</div><div class="ti"><div class="tl">Settlement</div><div class="to">Pacific Settlement</div></div></div>
+        </div>
+      </div>
+      <div class="txn txn-r2" onclick="openPanel('tenant')">
+        <div class="txn-meta">
+          <div><div class="txn-name">Tenant Onboarding</div><div class="txn-addr">Unit 14B, Harbour Tower · Tenant: A. Reyes · Manager: K. Pham · Pacific Properties</div></div>
+          <div class="txn-ri"><div class="txn-val" style="color:var(--t2);font-size:13px;font-weight:500">$2,600 / mo</div><div class="srow"><div class="pip pip-b"></div><span class="slbl" style="color:var(--bl)">Running</span></div></div>
+        </div>
+        <div class="track">
+          <div class="ts s-done"><div class="tn">✓</div><div class="ti"><div class="tl">KYC</div><div class="to">Compliance</div><div class="tt">Done</div></div></div>
+          <div class="tc tc-d"></div>
+          <div class="ts s-act"><div class="tn">2</div><div class="ti"><div class="tl">Background check</div><div class="to">VEDA Bureau</div><div class="tt" data-elapsed="21600">6h 0m</div></div></div>
+          <div class="tc tc-p"></div>
+          <div class="ts s-wait"><div class="tn">3</div><div class="ti"><div class="tl">Lease signing</div><div class="to">Both parties</div></div></div>
+          <div class="tc tc-p"></div>
+          <div class="ts s-wait"><div class="tn">4</div><div class="ti"><div class="tl">Bond lodgement</div><div class="to">Consumer Affairs</div></div></div>
+          <div class="tc tc-p"></div>
+          <div class="ts s-wait"><div class="tn">5</div><div class="ti"><div class="tl">Move-in</div><div class="to">A. Reyes</div></div></div>
+        </div>
+      </div>
+      <div class="txn txn-r3" onclick="openPanel('contractor')">
+        <div class="txn-meta">
+          <div><div class="txn-name">Contractor Approval</div><div class="txn-addr">Pacific Maintenance Co · Annual contract · Director: M. Osei</div></div>
+          <div class="txn-ri"><div class="txn-val" style="color:var(--t2);font-size:13px;font-weight:500">$28,400 / yr</div><div class="srow"><div class="pip pip-a"></div><span class="slbl" style="color:var(--am)">Stalled</span></div></div>
+        </div>
+        <div class="track">
+          <div class="ts s-done"><div class="tn">✓</div><div class="ti"><div class="tl">Application</div><div class="to">Procurement</div><div class="tt">Done</div></div></div>
+          <div class="tc tc-d"></div>
+          <div class="ts s-done"><div class="tn">✓</div><div class="ti"><div class="tl">License check</div><div class="to">Compliance</div><div class="tt">Verified</div></div></div>
+          <div class="tc tc-d"></div>
+          <div class="ts s-st"><div class="tn">!</div><div class="ti"><div class="tl">Insurance docs</div><div class="to">Pacific Maint.</div><div class="tt">Now received</div></div></div>
+          <div class="tc tc-p"></div>
+          <div class="ts s-wait"><div class="tn">4</div><div class="ti"><div class="tl">Director sign-off</div><div class="to">M. Osei</div></div></div>
+          <div class="tc tc-p"></div>
+          <div class="ts s-wait"><div class="tn">5</div><div class="ti"><div class="tl">Engaged</div><div class="to">All parties</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ APPROVALS ═══════════ -->
+  <div class="page" id="p-approvals">
+    <div class="pg-intro">
+      <i class="ti ti-info-circle"></i>
+      <div class="pg-intro-tx">Each card is a decision that needs you — with all context pre-assembled by Orchestra. The mini flow track shows <b>exactly which steps are blocked</b> while you wait. Click approve and the transaction keeps moving.</div>
+      <button class="pg-intro-cl" onclick="this.closest('.pg-intro').remove()">Got it</button>
+    </div>
+    <div class="appr-filter">
+      <button class="fchip on" data-f="all"        onclick="fAppr(this)">All</button>
+      <button class="fchip"    data-f="inspection"  onclick="fAppr(this)">Inspections</button>
+      <button class="fchip"    data-f="lease"       onclick="fAppr(this)">Leases</button>
+      <button class="fchip"    data-f="contractor"  onclick="fAppr(this)">Contractors</button>
+    </div>
+    <div class="pgsc">
+      <div class="appr-list" id="appr-list">
+
+        <div class="acard" id="ac1" data-type="inspection">
+          <div class="acard-track">
+            <div class="atrack">
+              <div class="atrack-step t-done"><div class="atrack-node">✓</div><div class="atrack-lbl">Offer</div></div>
+              <div class="atrack-conn d"></div>
+              <div class="atrack-step t-done"><div class="atrack-node">✓</div><div class="atrack-lbl">Finance</div></div>
+              <div class="atrack-conn d"></div>
+              <div class="atrack-step t-here"><div class="atrack-node">!</div><div class="atrack-lbl">Inspection ← you are here</div></div>
+              <div class="atrack-conn p"></div>
+              <div class="atrack-step t-wait"><div class="atrack-node">4</div><div class="atrack-lbl">Title</div></div>
+              <div class="atrack-conn p"></div>
+              <div class="atrack-step t-wait"><div class="atrack-node">5</div><div class="atrack-lbl">Exchange</div></div>
+              <div class="atrack-conn p"></div>
+              <div class="atrack-step t-wait"><div class="atrack-node">6</div><div class="atrack-lbl">Settlement</div></div>
+            </div>
+            <div class="atrack-blocker"><i class="ti ti-lock" style="font-size:11px"></i> Your decision unlocks: Title search → Contract exchange → Settlement</div>
+          </div>
+          <div class="acard-main-hd"><div><div class="acard-title">Building Inspection · 4 Merriway Drive</div><div class="acard-sub">Harrison Property Inspections · Report received 2h ago</div></div><span class="badge b-amber">Needs review</span></div>
+          <div class="ctx-tags"><span class="ctx-tag">Minor issue flagged</span><span class="ctx-tag">Structure: clear</span><span class="ctx-tag">Rear drainage noted</span><span class="ctx-tag">No price impact expected</span></div>
+          <div class="acard-body">Inspector flagged a minor rear boundary drainage issue — not structurally significant. Vendor and buyer have both been notified by Orchestra. Your sign-off advances the flow to title search and contract exchange.</div>
+          <div class="acard-acts"><button class="abtn ap" onclick="clearAppr('ac1')">Proceed to title</button><button class="abtn rj" onclick="clearAppr('ac1')">Renegotiate price</button><button class="abtn if">Request re-inspection</button></div>
+        </div>
+
+        <div class="acard" id="ac2" data-type="lease">
+          <div class="acard-track">
+            <div class="atrack">
+              <div class="atrack-step t-done"><div class="atrack-node">✓</div><div class="atrack-lbl">KYC</div></div>
+              <div class="atrack-conn d"></div>
+              <div class="atrack-step t-here"><div class="atrack-node">!</div><div class="atrack-lbl">Lease sign ← you are here</div></div>
+              <div class="atrack-conn p"></div>
+              <div class="atrack-step t-wait"><div class="atrack-node">3</div><div class="atrack-lbl">Bond</div></div>
+              <div class="atrack-conn p"></div>
+              <div class="atrack-step t-wait"><div class="atrack-node">4</div><div class="atrack-lbl">Move-in</div></div>
+            </div>
+            <div class="atrack-blocker"><i class="ti ti-lock" style="font-size:11px"></i> Your decision unlocks: Bond lodgement → Move-in confirmation</div>
+          </div>
+          <div class="acard-main-hd"><div><div class="acard-title">Lease Agreement · Unit 14B, Harbour Tower</div><div class="acard-sub">Tenant: A. Reyes · Background check complete · 4h ago</div></div><span class="badge b-blue">New</span></div>
+          <div class="ctx-tags"><span class="ctx-tag">Credit: Clear</span><span class="ctx-tag">2 references verified</span><span class="ctx-tag">Bond: $3,200</span><span class="ctx-tag">Move-in: 1 Aug 2026</span></div>
+          <div class="acard-body">Background and credit check returned clean. Two employment references verified by Orchestra. Tenant has confirmed move-in date. Landlord sign-off is the final step before lease documents dispatch.</div>
+          <div class="acard-acts"><button class="abtn ap" onclick="clearAppr('ac2')">Approve lease</button><button class="abtn rj" onclick="clearAppr('ac2')">Decline application</button><button class="abtn if">Further checks</button></div>
+        </div>
+
+        <div class="acard" id="ac3" data-type="contractor">
+          <div class="acard-track">
+            <div class="atrack">
+              <div class="atrack-step t-done"><div class="atrack-node">✓</div><div class="atrack-lbl">Application</div></div>
+              <div class="atrack-conn d"></div>
+              <div class="atrack-step t-done"><div class="atrack-node">✓</div><div class="atrack-lbl">License</div></div>
+              <div class="atrack-conn d"></div>
+              <div class="atrack-step t-done"><div class="atrack-node">✓</div><div class="atrack-lbl">Insurance</div></div>
+              <div class="atrack-conn d"></div>
+              <div class="atrack-step t-here"><div class="atrack-node">!</div><div class="atrack-lbl">Director ← you are here</div></div>
+              <div class="atrack-conn p"></div>
+              <div class="atrack-step t-wait"><div class="atrack-node">5</div><div class="atrack-lbl">Engaged</div></div>
+            </div>
+            <div class="atrack-blocker"><i class="ti ti-lock" style="font-size:11px"></i> Your decision unlocks: Contractor engagement &amp; first work order</div>
+          </div>
+          <div class="acard-main-hd"><div><div class="acard-title">Contractor Engagement · Pacific Maintenance Co</div><div class="acard-sub">Insurance docs verified this morning · Director sign-off needed</div></div><span class="badge b-blue">Ready</span></div>
+          <div class="ctx-tags"><span class="ctx-tag">License: Active</span><span class="ctx-tag">Insurance: Confirmed</span><span class="ctx-tag">$28,400 / yr</span><span class="ctx-tag">3yr relationship</span></div>
+          <div class="acard-body">License and public liability certificates confirmed. Outstanding insurance docs received and verified. Director sign-off is the final step before the first work order dispatches.</div>
+          <div class="acard-acts"><button class="abtn ap" onclick="clearAppr('ac3')">Approve engagement</button><button class="abtn rj" onclick="clearAppr('ac3')">Reject</button><button class="abtn if">Hold for review</button></div>
+        </div>
+      </div>
+      <div class="past-sec">
+        <div class="past-hdg">Recently decided</div>
+        <div class="past-row"><span class="past-who"><b>Lease Agreement</b> · 8 Riverton Close · M. Tanaka</span><span class="past-dec pd-ok">Approved</span><span class="past-when">21 Jun</span></div>
+        <div class="past-row"><span class="past-who"><b>Building Inspection</b> · 22 Lakeview Terrace · clear</span><span class="past-dec pd-ok">Proceeded</span><span class="past-when">19 Jun</span></div>
+        <div class="past-row"><span class="past-who"><b>Finance Application</b> · 31 Elmwood Crescent · CBA</span><span class="past-dec pd-ok">Approved</span><span class="past-when">18 Jun</span></div>
+        <div class="past-row"><span class="past-who"><b>Contractor Renewal</b> · Clean Pro Services</span><span class="past-dec pd-no">Declined</span><span class="past-when">15 Jun</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PARTIES ═══════════ -->
+  <div class="page" id="p-parties">
+    <div class="pg-intro">
+      <i class="ti ti-info-circle"></i>
+      <div class="pg-intro-tx"><b>8 external parties. Zero emails sent by you.</b> Banks, inspectors, solicitors, conveyancers, settlement agents — Orchestra is coordinating all of them. Every card shows the last action taken on your behalf.</div>
+      <button class="pg-intro-cl" onclick="this.closest('.pg-intro').remove()">Got it</button>
+    </div>
+    <div class="pgsc">
+      <div class="pg-bar"><span class="pg-bar-t">Active contacts</span><span class="pg-bar-h">8 parties across 3 transactions</span></div>
+      <div class="parties-grid">
+
+        <div class="pc">
+          <div class="pc-top"><div class="pc-av" style="background:var(--blt);color:var(--bdk)">SM</div><span class="pc-type" style="background:var(--blt);color:var(--bdk)">Agent</span></div>
+          <div class="pc-name">Sarah Mills · RE/MAX Glenelg</div>
+          <div class="pc-orch-lbl">Last action by Orchestra</div>
+          <div class="pc-orch-action"><b>Inspection confirmation sent</b> · 2h ago</div>
+          <div class="pc-foot"><div class="pc-flow">4 Merriway Drive</div><span class="pc-status pcs-ok">Active</span></div>
+        </div>
+
+        <div class="pc">
+          <div class="pc-top"><div class="pc-av" style="background:var(--glt);color:var(--gdk)">NA</div><span class="pc-type" style="background:var(--glt);color:var(--gdk)">Bank</span></div>
+          <div class="pc-name">NAB — Home Loans</div>
+          <div class="pc-orch-lbl">Last action by Orchestra</div>
+          <div class="pc-orch-action"><b>Pre-approval confirmed</b> · $1.2M · 10:47 today</div>
+          <div class="pc-foot"><div class="pc-flow">4 Merriway Drive</div><span class="pc-status pcs-done">Done</span></div>
+        </div>
+
+        <div class="pc pc-stall">
+          <div class="pc-top"><div class="pc-av" style="background:var(--alt);color:var(--adk)">HP</div><span class="pc-type" style="background:var(--alt);color:var(--adk)">Inspector</span></div>
+          <div class="pc-name">Harrison Property Inspections</div>
+          <div class="pc-orch-lbl">Last action by Orchestra</div>
+          <div class="pc-orch-action warn"><b>2nd reminder sent</b> · Awaiting inspection report</div>
+          <div class="pc-foot"><div class="pc-flow">4 Merriway Drive</div><span class="pc-status pcs-stall">Overdue</span></div>
+        </div>
+
+        <div class="pc">
+          <div class="pc-top"><div class="pc-av" style="background:var(--plt);color:var(--pdk)">AC</div><span class="pc-type" style="background:var(--plt);color:var(--pdk)">Conveyancer</span></div>
+          <div class="pc-name">Adelaide Conveyancers</div>
+          <div class="pc-orch-lbl">Last action by Orchestra</div>
+          <div class="pc-orch-action"><b>Title search queued</b> · Waiting on inspection clearance</div>
+          <div class="pc-foot"><div class="pc-flow">2 flows</div><span class="pc-status pcs-wait">Queued</span></div>
+        </div>
+
+        <div class="pc">
+          <div class="pc-top"><div class="pc-av" style="background:var(--plt);color:var(--pdk)">OL</div><span class="pc-type" style="background:var(--plt);color:var(--pdk)">Solicitor</span></div>
+          <div class="pc-name">Okafor Legal (Vendor)</div>
+          <div class="pc-orch-lbl">Last action by Orchestra</div>
+          <div class="pc-orch-action"><b>Contract draft requested</b> · Awaiting inspection outcome</div>
+          <div class="pc-foot"><div class="pc-flow">4 Merriway Drive</div><span class="pc-status pcs-wait">Queued</span></div>
+        </div>
+
+        <div class="pc">
+          <div class="pc-top"><div class="pc-av" style="background:var(--plt);color:var(--pdk)">HF</div><span class="pc-type" style="background:var(--plt);color:var(--pdk)">Solicitor</span></div>
+          <div class="pc-name">Hoffman &amp; Partners (Buyer)</div>
+          <div class="pc-orch-lbl">Last action by Orchestra</div>
+          <div class="pc-orch-action"><b>Finance docs received</b> · Awaiting inspection report</div>
+          <div class="pc-foot"><div class="pc-flow">4 Merriway Drive</div><span class="pc-status pcs-wait">Queued</span></div>
+        </div>
+
+        <div class="pc">
+          <div class="pc-top"><div class="pc-av" style="background:var(--glt);color:var(--gdk)">KP</div><span class="pc-type" style="background:var(--glt);color:var(--gdk)">Prop. Manager</span></div>
+          <div class="pc-name">K. Pham · Pacific Properties</div>
+          <div class="pc-orch-lbl">Last action by Orchestra</div>
+          <div class="pc-orch-action"><b>Background check dispatched</b> · A. Reyes · Unit 14B</div>
+          <div class="pc-foot"><div class="pc-flow">Unit 14B</div><span class="pc-status pcs-ok">Active</span></div>
+        </div>
+
+        <div class="pc pc-stall">
+          <div class="pc-top"><div class="pc-av" style="background:var(--alt);color:var(--adk)">PM</div><span class="pc-type" style="background:var(--alt);color:var(--adk)">Contractor</span></div>
+          <div class="pc-name">Pacific Maintenance Co</div>
+          <div class="pc-orch-lbl">Last action by Orchestra</div>
+          <div class="pc-orch-action warn"><b>Director approval requested</b> after docs verified · 30m ago</div>
+          <div class="pc-foot"><div class="pc-flow">Annual contract</div><span class="pc-status pcs-stall">Pending sign-off</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ BUILDER ═══════════ -->
+  <div class="page" id="p-builder">
+    <div class="pg-intro">
+      <i class="ti ti-info-circle"></i>
+      <div class="pg-intro-tx">Choose a template or start from scratch. Configure each step — who's responsible, how long before Orchestra escalates, whether it needs approval. <b>Launch and Orchestra runs the flow from there.</b></div>
+      <button class="pg-intro-cl" onclick="this.closest('.pg-intro').remove()">Got it</button>
+    </div>
+    <div class="pgsc">
+      <div style="padding:16px 24px 10px;display:flex;align-items:center;justify-content:space-between">
+        <span class="pg-bar-t">Choose a template</span>
+        <button class="hbtn" onclick="selectTpl('blank')"><i class="ti ti-plus"></i> Start from scratch</button>
+      </div>
+      <div class="tpl-grid">
+        <div class="tpl sel" id="tpl-sale" onclick="selectTpl('sale')">
+          <div class="tpl-header"><div class="tpl-ico"><i class="ti ti-home-move"></i></div><div><div class="tpl-nm">Property Sale</div><div class="tpl-st">6 steps</div></div></div>
+          <div class="tpl-preview">
+            <span class="tp-node tp-done">Offer</span><span class="tp-arr">›</span>
+            <span class="tp-node tp-done">Finance</span><span class="tp-arr">›</span>
+            <span class="tp-node tp-act">Inspect.</span><span class="tp-arr">›</span>
+            <span class="tp-node">Title</span><span class="tp-arr">›</span>
+            <span class="tp-node tp-more">+2</span>
+          </div>
+          <div class="tpl-desc">Complete workflow from offer to title transfer</div>
+        </div>
+        <div class="tpl" id="tpl-tenant" onclick="selectTpl('tenant')">
+          <div class="tpl-header"><div class="tpl-ico"><i class="ti ti-key"></i></div><div><div class="tpl-nm">Tenant Onboarding</div><div class="tpl-st">5 steps</div></div></div>
+          <div class="tpl-preview">
+            <span class="tp-node tp-done">KYC</span><span class="tp-arr">›</span>
+            <span class="tp-node tp-act">Background</span><span class="tp-arr">›</span>
+            <span class="tp-node">Lease</span><span class="tp-arr">›</span>
+            <span class="tp-node tp-more">+2</span>
+          </div>
+          <div class="tpl-desc">KYC through to move-in confirmation</div>
+        </div>
+        <div class="tpl" id="tpl-contractor" onclick="selectTpl('contractor')">
+          <div class="tpl-header"><div class="tpl-ico"><i class="ti ti-tools"></i></div><div><div class="tpl-nm">Contractor Approval</div><div class="tpl-st">5 steps</div></div></div>
+          <div class="tpl-preview">
+            <span class="tp-node tp-done">Application</span><span class="tp-arr">›</span>
+            <span class="tp-node tp-done">License</span><span class="tp-arr">›</span>
+            <span class="tp-node tp-act">Insurance</span><span class="tp-arr">›</span>
+            <span class="tp-node tp-more">+2</span>
+          </div>
+          <div class="tpl-desc">License check to contractor engagement</div>
+        </div>
+      </div>
+      <div class="bdr-body">
+        <div class="bdr-lbl">Flow steps</div>
+        <div class="bdr-flow" id="bdr-flow">
+          <div class="bnode bsel" onclick="selBN(this)"><div class="bn-type">Trigger</div><div class="bn-name">Offer received</div><div class="bn-own">Agent</div></div>
+          <span class="barr">›</span>
+          <div class="bnode" onclick="selBN(this)"><div class="bn-type">Approval</div><div class="bn-name">Finance check</div><div class="bn-own">Buyer's bank</div></div>
+          <span class="barr">›</span>
+          <div class="bnode" onclick="selBN(this)"><div class="bn-type">Task</div><div class="bn-name">Inspection</div><div class="bn-own">Inspector</div></div>
+          <span class="barr">›</span>
+          <div class="bnode" onclick="selBN(this)"><div class="bn-type">External party</div><div class="bn-name">Title search</div><div class="bn-own">Conveyancer</div></div>
+          <span class="barr">›</span>
+          <div class="badd" onclick="addBN()" title="Add step">+</div>
+        </div>
+        <div class="bdr-lbl">Step configuration</div>
+        <div class="cfg-panel">
+          <div class="cfg-title" id="cfg-title">Offer received</div>
+          <div class="cfg-grid">
+            <div class="cfg-field"><label>Step name</label><input class="cfg-in" id="cfg-name" type="text" value="Offer received" oninput="updBN(this.value)"></div>
+            <div class="cfg-field"><label>Responsible party</label><input class="cfg-in" id="cfg-own" type="text" value="Agent" placeholder="Agent, bank, conveyancer…"></div>
+            <div class="cfg-field" style="grid-column:1/-1"><label>Step type</label><div class="tpills"><button class="tpill on" onclick="selPill(this)">Trigger</button><button class="tpill" onclick="selPill(this)">Approval</button><button class="tpill" onclick="selPill(this)">Task</button><button class="tpill" onclick="selPill(this)">External party</button><button class="tpill" onclick="selPill(this)">Compliance check</button></div></div>
+            <div class="cfg-field"><label>Escalate if no response after</label><select class="cfg-sel"><option>4 hours</option><option>24 hours</option><option>48 hours</option><option>3 business days</option><option>No escalation</option></select></div>
+            <div class="cfg-field"><label>Requires approval from</label><select class="cfg-sel"><option>Nobody (auto-advance)</option><option>Property Manager</option><option>Director</option><option>Vendor</option><option>Buyer</option></select></div>
+          </div>
+          <div class="bdr-acts">
+            <button class="btn-lnch" id="btn-lnch" onclick="launchFlow()">Launch transaction</button>
+            <button class="btn-save" id="btn-save" onclick="saveTpl()">Save template</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ INSIGHTS ═══════════ -->
+  <div class="page" id="p-insights">
+    <div class="pg-intro">
+      <i class="ti ti-info-circle"></i>
+      <div class="pg-intro-tx">Insights tracks where your transactions slow down, how much coordination has been automated, and which steps cause the most friction. <b>Building inspections are your biggest bottleneck</b> — now you can set better client expectations.</div>
+      <button class="pg-intro-cl" onclick="this.closest('.pg-intro').remove()">Got it</button>
+    </div>
+    <div class="ins-metrics">
+      <div class="im"><div class="im-num">8</div><div class="im-lbl">Settled this month</div><div class="im-trend"><i class="ti ti-trending-up" style="font-size:11px"></i> +2 vs last month</div></div>
+      <div class="im"><div class="im-num">$6.2M</div><div class="im-lbl">Total value settled</div><div class="im-trend"><i class="ti ti-trending-up" style="font-size:11px"></i> +18% vs May</div></div>
+      <div class="im"><div class="im-num">42d</div><div class="im-lbl">Avg settlement time</div><div class="im-trend"><i class="ti ti-trending-down" style="font-size:11px"></i> 4d faster than Q1</div></div>
+      <div class="im hl"><div class="im-num">47h</div><div class="im-lbl">Coordination hours saved</div><div class="im-trend">This month · automated by Orchestra</div></div>
+    </div>
+    <div class="pgsc" id="insights-scroll">
+      <div class="ins-section">
+        <div class="ins-title">Settlements by month</div>
+        <div class="chart-row"><div class="chart-mo">Jan</div><div class="chart-track"><div class="chart-fill ins-bar" style="background:var(--bl);--w:37.5%" data-w="37.5%"><span class="chart-fill-n">3</span></div></div><div class="chart-detail">$2.1M</div></div>
+        <div class="chart-row"><div class="chart-mo">Feb</div><div class="chart-track"><div class="chart-fill ins-bar" style="background:var(--bl);--w:50%" data-w="50%"><span class="chart-fill-n">4</span></div></div><div class="chart-detail">$2.8M</div></div>
+        <div class="chart-row"><div class="chart-mo">Mar</div><div class="chart-track"><div class="chart-fill ins-bar" style="background:var(--bl);--w:50%" data-w="50%"><span class="chart-fill-n">4</span></div></div><div class="chart-detail">$3.1M</div></div>
+        <div class="chart-row"><div class="chart-mo">Apr</div><div class="chart-track"><div class="chart-fill ins-bar" style="background:var(--bl);--w:62.5%" data-w="62.5%"><span class="chart-fill-n">5</span></div></div><div class="chart-detail">$3.8M</div></div>
+        <div class="chart-row"><div class="chart-mo">May</div><div class="chart-track"><div class="chart-fill ins-bar" style="background:var(--bl);--w:75%" data-w="75%"><span class="chart-fill-n">6</span></div></div><div class="chart-detail">$5.2M</div></div>
+        <div class="chart-row"><div class="chart-mo">Jun</div><div class="chart-track"><div class="chart-fill ins-bar" style="background:var(--bdk);--w:100%" data-w="100%"><span class="chart-fill-n">8</span></div></div><div class="chart-detail">$6.2M</div></div>
+      </div>
+      <div class="ins-section">
+        <div class="ins-title">Average time per step — where transactions slow down</div>
+        <div class="step-bar-row"><div class="step-bar-lbl">Building inspection <span class="bottleneck-tag">Longest</span></div><div class="step-bar-wrap"><div class="step-bar ins-bar" style="background:var(--am);--w:80%" data-w="80%"></div></div><div class="step-bar-val">3.2 days avg</div></div>
+        <div class="step-bar-row"><div class="step-bar-lbl">Contract exchange</div><div class="step-bar-wrap"><div class="step-bar ins-bar" style="background:var(--bl);--w:63%" data-w="63%"></div></div><div class="step-bar-val">2.5 days avg</div></div>
+        <div class="step-bar-row"><div class="step-bar-lbl">Finance pre-approval</div><div class="step-bar-wrap"><div class="step-bar ins-bar" style="background:var(--bl);--w:53%" data-w="53%"></div></div><div class="step-bar-val">2.1 days avg</div></div>
+        <div class="step-bar-row"><div class="step-bar-lbl">Title search</div><div class="step-bar-wrap"><div class="step-bar ins-bar" style="background:var(--bl);--w:45%" data-w="45%"></div></div><div class="step-bar-val">1.8 days avg</div></div>
+        <div class="step-bar-row"><div class="step-bar-lbl">Settlement</div><div class="step-bar-wrap"><div class="step-bar ins-bar" style="background:var(--gn);--w:30%" data-w="30%"></div></div><div class="step-bar-val">1.2 days avg</div></div>
+        <div class="step-bar-row"><div class="step-bar-lbl">KYC &amp; compliance</div><div class="step-bar-wrap"><div class="step-bar ins-bar" style="background:var(--gn);--w:22%" data-w="22%"></div></div><div class="step-bar-val">0.9 days avg</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ AUDIT ═══════════ -->
+  <div class="page" id="p-audit">
+    <div class="pg-intro">
+      <i class="ti ti-info-circle"></i>
+      <div class="pg-intro-tx">Every routing decision, approval, exception, and completion — <b>automatically logged with timestamps</b>. You never have to assemble a record of what happened. It's always here, from day one.</div>
+      <button class="pg-intro-cl" onclick="this.closest('.pg-intro').remove()">Got it</button>
+    </div>
+    <div class="audit-filter">
+      <button class="fchip on" data-fa="all"        onclick="fAudit(this)">All events</button>
+      <button class="fchip"    data-fa="routing"    onclick="fAudit(this)">Routing</button>
+      <button class="fchip"    data-fa="approval"   onclick="fAudit(this)">Approvals</button>
+      <button class="fchip"    data-fa="exception"  onclick="fAudit(this)">Exceptions</button>
+      <button class="fchip"    data-fa="completion" onclick="fAudit(this)">Completions</button>
+    </div>
+    <div class="pgsc">
+      <div class="timeline">
+        <div class="tl-day">Today</div>
+        <div class="tl-event te-routing"  data-at="routing">   <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">14:30</span><span class="tl-type-tag">Routing</span></div><div class="tl-desc">Reminder sent to inspector (2 of 2) — <b>4 Merriway Drive</b></div><div class="tl-actor">Orchestra</div></div></div>
+        <div class="tl-event te-routing"  data-at="routing">   <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">11:15</span><span class="tl-type-tag">Routing</span></div><div class="tl-desc">Inspection booked — <b>Harrison Property Inspections · 4 Merriway Drive</b></div><div class="tl-actor">Orchestra</div></div></div>
+        <div class="tl-event te-approval" data-at="approval">  <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">10:47</span><span class="tl-type-tag">Approval</span></div><div class="tl-desc">Finance pre-approval confirmed — <b>NAB · $1.2M · J. Hoffman</b></div><div class="tl-actor">NAB</div></div></div>
+        <div class="tl-event te-routing"  data-at="routing">   <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">09:04</span><span class="tl-type-tag">Routing</span></div><div class="tl-desc">Finance docs dispatched to <b>NAB</b> — 4 Merriway Drive</div><div class="tl-actor">Orchestra</div></div></div>
+        <div class="tl-event te-approval" data-at="approval">  <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">09:02</span><span class="tl-type-tag">Approval</span></div><div class="tl-desc">Offer of <b>$1,185,000 accepted</b> — 4 Merriway Drive · R. Okafor</div><div class="tl-actor">S. Mills</div></div></div>
+        <div class="tl-day">Yesterday</div>
+        <div class="tl-event te-exception" data-at="exception"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">15:30</span><span class="tl-type-tag">Exception</span></div><div class="tl-desc">Insurance certificate expired · <b>Pacific Maintenance Co</b> · chasing</div><div class="tl-actor">Orchestra</div></div></div>
+        <div class="tl-event te-routing"  data-at="routing">   <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">14:00</span><span class="tl-type-tag">Routing</span></div><div class="tl-desc">Title search initiated — <b>Adelaide Conveyancers · 22 Lakeview Tce</b></div><div class="tl-actor">Orchestra</div></div></div>
+        <div class="tl-event te-completion" data-at="completion"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">11:22</span><span class="tl-type-tag">Completion</span></div><div class="tl-desc">Settlement complete — <b>22 Lakeview Terrace, Norwood · $940,000</b></div><div class="tl-actor">System</div></div></div>
+        <div class="tl-day">22 Jun</div>
+        <div class="tl-event te-approval"  data-at="approval">  <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">16:14</span><span class="tl-type-tag">Approval</span></div><div class="tl-desc">Contract exchanged — <b>17 Clifford Ave, Burnside · $1,350,000</b></div><div class="tl-actor">Both solicitors</div></div></div>
+        <div class="tl-event te-exception" data-at="exception"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">09:00</span><span class="tl-type-tag">Exception</span></div><div class="tl-desc">Buyer solicitor unavailable · <b>8 Riverton Close</b> · rescheduled exchange</div><div class="tl-actor">Orchestra</div></div></div>
+        <div class="tl-day">21 Jun</div>
+        <div class="tl-event te-approval"  data-at="approval">  <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">14:30</span><span class="tl-type-tag">Approval</span></div><div class="tl-desc">Lease renewal signed — <b>8 Orchard St, Unley · M. Tanaka</b> · 12-month</div><div class="tl-actor">Landlord</div></div></div>
+        <div class="tl-event te-completion" data-at="completion"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">10:05</span><span class="tl-type-tag">Completion</span></div><div class="tl-desc">Tenant moved in — <b>Unit 8, Pacific Heights · C. Ibarra</b></div><div class="tl-actor">System</div></div></div>
+        <div class="tl-event te-completion" data-at="completion"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-meta"><span class="tl-time">09:20</span><span class="tl-type-tag">Completion</span></div><div class="tl-desc">Flow complete — <b>Property Sale · 31 Elmwood Crescent · $785,000</b></div><div class="tl-actor">System</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SETTINGS ═══════════ -->
+  <div class="page" id="p-settings">
+    <div class="pg-intro">
+      <i class="ti ti-info-circle"></i>
+      <div class="pg-intro-tx">Connect your existing tools and manage your team. Orchestra works <b>alongside the software you already use</b> — it doesn't replace it. It pulls coordination out of your inboxes and routes it intelligently.</div>
+      <button class="pg-intro-cl" onclick="this.closest('.pg-intro').remove()">Got it</button>
+    </div>
+    <div class="pgsc"><div class="settings-body">
+      <div class="sc">
+        <div class="sc-hd">Team members <span class="sc-hd-sub">3 active</span></div>
+        <div class="team-row"><div class="team-av" style="background:var(--blt);color:var(--bdk)">SM</div><div><div class="team-name">Sarah Mills</div><div class="team-role">Property Manager · Owner</div></div><span class="team-on">Active</span></div>
+        <div class="team-row"><div class="team-av" style="background:var(--plt);color:var(--pdk)">KP</div><div><div class="team-name">K. Pham</div><div class="team-role">Property Manager</div></div><span class="team-on">Active</span></div>
+        <div class="team-row"><div class="team-av" style="background:var(--glt);color:var(--gdk)">MO</div><div><div class="team-name">M. Osei</div><div class="team-role">Director · Approvals only</div></div><span class="team-on">Active</span></div>
+        <div class="invite-row"><i class="ti ti-plus" style="font-size:13px"></i> Invite team member</div>
+      </div>
+      <div class="sc">
+        <div class="sc-hd">Integrations <span class="sc-hd-sub">4 connected</span></div>
+        <div class="intg-row"><div class="intg-ic"><i class="ti ti-mail"></i></div><div><div class="intg-nm">Gmail</div><div class="intg-ds">Email coordination &amp; notifications</div></div><div class="intg-ri"><span class="intg-on">Connected</span></div></div>
+        <div class="intg-row"><div class="intg-ic"><i class="ti ti-file-text"></i></div><div><div class="intg-nm">DocuSign</div><div class="intg-ds">E-signatures for leases &amp; contracts</div></div><div class="intg-ri"><span class="intg-on">Connected</span></div></div>
+        <div class="intg-row"><div class="intg-ic"><i class="ti ti-building-bank"></i></div><div><div class="intg-nm">PEXA</div><div class="intg-ds">Property exchange &amp; settlement</div></div><div class="intg-ri"><span class="intg-on">Connected</span></div></div>
+        <div class="intg-row"><div class="intg-ic"><i class="ti ti-calendar"></i></div><div><div class="intg-nm">Google Calendar</div><div class="intg-ds">Inspection scheduling</div></div><div class="intg-ri"><span class="intg-on">Connected</span></div></div>
+        <div class="intg-row"><div class="intg-ic"><i class="ti ti-home"></i></div><div><div class="intg-nm">Property Tree</div><div class="intg-ds">Property management software</div></div><div class="intg-ri"><button class="intg-btn">Connect →</button></div></div>
+        <div class="intg-row"><div class="intg-ic"><i class="ti ti-chart-bar"></i></div><div><div class="intg-nm">Xero</div><div class="intg-ds">Accounting &amp; invoicing</div></div><div class="intg-ri"><button class="intg-btn">Connect →</button></div></div>
+        <div class="intg-row"><div class="intg-ic"><i class="ti ti-search"></i></div><div><div class="intg-nm">REA Group</div><div class="intg-ds">Listing data (read-only)</div></div><div class="intg-ri"><button class="intg-btn">Connect →</button></div></div>
+      </div>
+    </div></div>
+  </div>
+
+  </div><!-- /pages-wrap -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- Right panel -->
+<div class="backdrop" id="backdrop" onclick="closePanel()"></div>
+<div class="rpanel" id="rpanel">
+  <div class="rp-hd"><div class="rp-title" id="rp-title">Detail</div><button class="rp-cl" onclick="closePanel()"><i class="ti ti-x" style="font-size:13px"></i></button></div>
+  <div class="rp-body" id="rp-body"></div>
+</div>
+
+<script>
+/* ═════ TOUR ═════ */
+const TOUR_STEPS = [
+  {
+    tag:'The problem',
+    hl:'Before Orchestra, every transaction was <em>manual chaos</em>.',
+    body:'Chasing inspectors. Reminding solicitors. Following up banks. Coordinating settlement agents. Every transaction meant dozens of touchpoints — and it all fell on one person to hold it together.',
+    stat:{num:'47',lbl:'average manual touchpoints per transaction'}
+  },
+  {
+    tag:'The pipeline',
+    hl:'One screen. Every transaction. <em>Nothing to chase.</em>',
+    body:'The Pipeline shows every active transaction and exactly where it is right now. Filled circles = completed. Pulsing circle = active right now. Dashed steps = ahead. Click any transaction to see what Orchestra is doing on your behalf.',
+    stat:{num:'0',lbl:'manual follow-ups today — all coordination automated'}
+  },
+  {
+    tag:'Approvals',
+    hl:'Decisions arrive with <em>everything you need.</em>',
+    body:'When something needs your sign-off, it appears in Approvals — context pre-assembled, context tags loaded, and a mini flow track showing exactly which steps are blocked while you wait. One click and the transaction keeps moving.',
+    stat:null
+  },
+  {
+    tag:'Parties',
+    hl:'<em>8 external parties.</em> Zero emails sent by you.',
+    body:'Banks, inspectors, conveyancers, solicitors, settlement agents — Orchestra is coordinating all of them across your active transactions. Go to Parties to see every touchpoint happening on your behalf, in real time.',
+    stat:{num:'8',lbl:'parties coordinated automatically across 3 transactions'}
+  },
+  {
+    tag:'Insights',
+    hl:'The system shows you <em>where time is lost.</em>',
+    body:'Insights tracks where transactions slow down and which steps create bottlenecks. Building inspections take longest — 3.2 days on average. Knowing that changes how you set client expectations. Use the sidebar to explore every section.',
+    stat:null
+  }
+];
+let tourStep = 0;
+
+function renderTourStep() {
+  const s = TOUR_STEPS[tourStep];
+  const isLast = tourStep === TOUR_STEPS.length - 1;
+  const dots = TOUR_STEPS.map((_,i)=>`<div class="tour-dot${i===tourStep?' on':''}"></div>`).join('');
+  document.getElementById('tour-dots').innerHTML = dots;
+  document.getElementById('tour-content').innerHTML = `
+    <div class="tour-tag">${s.tag}</div>
+    <div class="tour-hl">${s.hl}</div>
+    <div class="tour-body">${s.body}</div>
+    ${s.stat?`<div class="tour-stat"><div class="tour-stat-num">${s.stat.num}</div><div class="tour-stat-lbl">${s.stat.lbl}</div></div>`:''}
+  `;
+  const btn = document.getElementById('tour-next-btn');
+  btn.innerHTML = isLast ? 'Start exploring <i class="ti ti-arrow-right"></i>' : 'Next <i class="ti ti-arrow-right"></i>';
+}
+
+async function tourNext() {
+  const content = document.getElementById('tour-content');
+  content.style.animation = 'tourOut .18s ease forwards';
+  await new Promise(r=>setTimeout(r,180));
+  if(tourStep < TOUR_STEPS.length - 1) {
+    tourStep++;
+    content.style.animation = '';
+    renderTourStep();
+    content.style.animation = 'tourIn .18s ease forwards';
+  } else {
+    closeTour();
+  }
+}
+
+function closeTour(){document.getElementById('tour-ov').classList.add('hidden')}
+function restartTour(){tourStep=0;renderTourStep();document.getElementById('tour-ov').classList.remove('hidden')}
+renderTourStep();
+
+/* ═════ NAVIGATION ═════ */
+const PAGE_META = {
+  pipeline: {title:'Pipeline',sub:'3 active transactions',acts:'<button class="hbtn prim" onclick="navigate(\'builder\')"><i class="ti ti-plus"></i> New flow</button>'},
+  approvals:{title:'Approvals',sub:'3 pending decisions',acts:''},
+  parties:  {title:'Parties',sub:'8 active contacts across 3 transactions',acts:''},
+  builder:  {title:'Flow builder',sub:'Create and manage workflows',acts:''},
+  insights: {title:'Insights',sub:'June 2026 · Meridian Property Group',acts:''},
+  audit:    {title:'Audit log',sub:'Complete coordination record · Auto-generated',acts:''},
+  settings: {title:'Settings',sub:'Team · Integrations',acts:''},
+};
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+page).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.toggle('active',i.dataset.page===page));
+  const m=PAGE_META[page];
+  document.getElementById('mhd-title').textContent=m.title;
+  document.getElementById('mhd-sub').textContent=m.sub;
+  document.getElementById('mhd-acts').innerHTML=m.acts;
+  closePanel();
+  if(page==='insights') setTimeout(animateBars, 200);
+}
+
+/* ═════ EXCEPTION ═════ */
+function dismissExc(){document.getElementById('exc-bar').style.display='none';document.getElementById('exc-sbbdg').style.display='none';}
+
+/* ═════ PANEL DATA ═════ */
+const PANELS = {
+  sale:{title:'Property Sale · 4 Merriway Drive',prop:{addr:'4 Merriway Drive, Glenelg SA 5045',meta:'Vendor: R. &amp; T. Okafor · Buyer: J. Hoffman · Agent: Sarah Mills · Listed 14 Jun',val:'$1,185,000'},
+    steps:[{c:'ps-done',n:'✓',t:'Offer accepted',s:'Agent: S. Mills · Vendor notified',st:'Done'},{c:'ps-done',n:'✓',t:'Finance pre-approval',s:'NAB · $1.2M approved',st:'Confirmed'},{c:'ps-act',n:'3',t:'Building inspection',s:'Harrison Property Inspections',st:'In progress · 3h elapsed'},{c:'ps-wait',n:'4',t:'Title search',s:'Adelaide Conveyancers',st:'Waiting'},{c:'ps-wait',n:'5',t:'Contract exchange',s:'Both solicitors',st:'Waiting'},{c:'ps-wait',n:'6',t:'Settlement',s:'Pacific Settlement Services',st:'Waiting'}],
+    log:[{ts:'09:02',msg:'Offer of <b>$1,185,000 accepted</b> by vendor'},{ts:'09:04',msg:'Finance docs dispatched to <b>NAB</b>'},{ts:'10:47',msg:'<b>Pre-approval confirmed</b> — NAB · $1.2M'},{ts:'11:15',msg:'Inspection booked — <b>Harrison Property Inspections</b>'},{ts:'14:30',msg:'No report received · Reminder sent (2 of 2)',w:true}]},
+  tenant:{title:'Tenant Onboarding · Unit 14B',prop:{addr:'Unit 14B, Harbour Tower · Pacific Properties',meta:'Tenant: A. Reyes · Manager: K. Pham · Move-in: 1 Aug 2026',val:'$2,600 / mo'},
+    steps:[{c:'ps-done',n:'✓',t:'KYC verification',s:'Compliance team',st:'Done'},{c:'ps-act',n:'2',t:'Background check',s:'VEDA Credit Bureau',st:'Processing · 6h elapsed'},{c:'ps-wait',n:'3',t:'Lease signing',s:'Both parties',st:'Waiting'},{c:'ps-wait',n:'4',t:'Bond lodgement',s:'Consumer Affairs',st:'Waiting'},{c:'ps-wait',n:'5',t:'Move-in confirmation',s:'A. Reyes',st:'Waiting'}],
+    log:[{ts:'08:30',msg:'KYC documents dispatched to tenant'},{ts:'08:45',msg:'<b>KYC complete</b> — identity verified'},{ts:'09:00',msg:'Background check initiated — <b>VEDA Bureau</b>'},{ts:'12:15',msg:'Processing · Est. 2–4 hours remaining'}]},
+  contractor:{title:'Contractor Approval · Pacific Maintenance',prop:{addr:'Pacific Maintenance Co · Annual contract',meta:'Director: M. Osei · Start: 1 Jul 2026 · 3yr relationship',val:'$28,400 / yr'},
+    steps:[{c:'ps-done',n:'✓',t:'Application received',s:'Procurement',st:'Done'},{c:'ps-done',n:'✓',t:'License verification',s:'Compliance',st:'Active'},{c:'ps-act',n:'3',t:'Insurance docs',s:'Pacific Maintenance Co',st:'Received · Under review'},{c:'ps-wait',n:'4',t:'Director sign-off',s:'M. Osei',st:'Waiting'},{c:'ps-wait',n:'5',t:'First work order',s:'Orchestra dispatches',st:'Waiting'}],
+    log:[{ts:'Day 1',msg:'Application received — license check initiated'},{ts:'Day 1',msg:'<b>License confirmed active</b>'},{ts:'Day 2',msg:'No insurance response · Reminder sent (1 of 2)',w:true},{ts:'Day 2',msg:'Second reminder sent',w:true},{ts:'Today',msg:'<b>Insurance certificates received</b> — verified'},{ts:'Today',msg:'Director approval requested — <b>M. Osei</b>'}]}
+};
+
+function openPanel(key) {
+  const d=PANELS[key];
+  document.getElementById('rp-title').textContent=d.title;
+  const steps=d.steps.map(s=>`<div class="pstep ${s.c}"><div class="psn">${s.n}</div><div class="psb"><div class="pst${s.c==='ps-wait'?' dm':''}">${s.t}</div><div class="pso">${s.s}</div><div class="pss">${s.st}</div></div></div>`).join('');
+  const log=d.log.map(l=>`<div class="ple"><span class="ple-ts">${l.ts}</span><span class="ple-msg${l.w?' ple-w':''}">${l.msg}</span></div>`).join('');
+  document.getElementById('rp-body').innerHTML=`<div class="rp-prop"><div class="rp-addr">${d.prop.addr}</div><div class="rp-meta">${d.prop.meta}</div><div class="rp-val">${d.prop.val}</div></div><div class="rp-sec"><div class="rp-stitle">Transaction steps</div>${steps}</div><div class="rp-sec"><div class="rp-stitle">Coordination log</div>${log}</div>`;
+  document.getElementById('rpanel').classList.add('open');
+  document.getElementById('backdrop').classList.add('on');
+}
+function closePanel(){document.getElementById('rpanel').classList.remove('open');document.getElementById('backdrop').classList.remove('on')}
+
+/* ═════ APPROVALS ═════ */
+let pendingCount=3;
+function fAppr(btn){document.querySelectorAll('#p-approvals .fchip').forEach(c=>c.classList.remove('on'));btn.classList.add('on');const f=btn.dataset.f;document.querySelectorAll('.acard').forEach(c=>{c.style.display=(f==='all'||c.dataset.type===f)?'':'none'})}
+function clearAppr(id){
+  const card=document.getElementById(id);card.classList.add('clearing');pendingCount--;
+  setTimeout(()=>{card.remove();const b=document.getElementById('appr-sbbdg');if(pendingCount>0){b.textContent=pendingCount}else{b.style.display='none';const list=document.getElementById('appr-list');const d=document.createElement('div');d.style.cssText='padding:32px;text-align:center;font-size:12px;color:var(--t3);line-height:1.8';d.innerHTML='All decisions made.<br>Orchestra is advancing every flow.';list.appendChild(d)}},300);
+}
+
+/* ═════ AUDIT ═════ */
+function fAudit(btn){document.querySelectorAll('#p-audit .fchip').forEach(c=>c.classList.remove('on'));btn.classList.add('on');const f=btn.dataset.fa;document.querySelectorAll('.tl-event').forEach(e=>{e.style.display=(f==='all'||e.dataset.at===f)?'flex':'none'})}
+
+/* ═════ BUILDER ═════ */
+let selNode=document.querySelector('.bnode'), bnCount=4;
+const TPLS={
+  sale:[{type:'Trigger',name:'Offer received',own:'Agent'},{type:'Approval',name:'Finance check',own:'Buyer\'s bank'},{type:'Task',name:'Inspection',own:'Inspector'},{type:'External party',name:'Title search',own:'Conveyancer'}],
+  tenant:[{type:'Trigger',name:'Application',own:'Tenant'},{type:'Compliance check',name:'KYC verification',own:'Compliance'},{type:'Task',name:'Background check',own:'VEDA Bureau'},{type:'Approval',name:'Lease signing',own:'Both parties'},{type:'Task',name:'Bond lodgement',own:'Consumer Affairs'}],
+  contractor:[{type:'Trigger',name:'Application',own:'Procurement'},{type:'Compliance check',name:'License check',own:'Compliance'},{type:'Task',name:'Insurance docs',own:'Contractor'},{type:'Approval',name:'Director sign-off',own:'Director'},{type:'Task',name:'First work order',own:'Orchestra'}]
+};
+function selectTpl(key){
+  document.querySelectorAll('.tpl').forEach(c=>c.classList.remove('sel'));
+  if(key!=='blank')document.getElementById('tpl-'+key)?.classList.add('sel');
+  const nodes=TPLS[key]||[];
+  const flow=document.getElementById('bdr-flow');
+  const add=flow.querySelector('.badd');
+  flow.querySelectorAll('.bnode,.barr').forEach(el=>el.remove());
+  bnCount=nodes.length;
+  nodes.forEach((n,i)=>{
+    if(i>0){const a=document.createElement('span');a.className='barr';a.textContent='›';flow.insertBefore(a,add)}
+    const node=document.createElement('div');node.className='bnode';
+    node.innerHTML=`<div class="bn-type">${n.type}</div><div class="bn-name">${n.name}</div><div class="bn-own">${n.own}</div>`;
+    node.onclick=function(){selBN(this)};flow.insertBefore(node,add);
+  });
+  if(flow.querySelector('.bnode'))selBN(flow.querySelector('.bnode'));
+}
+function selBN(el){document.querySelectorAll('.bnode').forEach(n=>n.classList.remove('bsel'));el.classList.add('bsel');selNode=el;const nm=el.querySelector('.bn-name').textContent,tp=el.querySelector('.bn-type').textContent,ow=el.querySelector('.bn-own').textContent;document.getElementById('cfg-title').textContent=nm;document.getElementById('cfg-name').value=nm;document.getElementById('cfg-own').value=ow;document.querySelectorAll('.tpill').forEach(p=>p.classList.toggle('on',p.textContent.trim().toLowerCase()===tp.toLowerCase()))}
+function updBN(v){if(!selNode)return;const d=v.trim()||'Untitled';selNode.querySelector('.bn-name').textContent=d;document.getElementById('cfg-title').textContent=d}
+function selPill(btn){document.querySelectorAll('.tpill').forEach(p=>p.classList.remove('on'));btn.classList.add('on');if(selNode)selNode.querySelector('.bn-type').textContent=btn.textContent}
+function addBN(){bnCount++;const flow=document.getElementById('bdr-flow'),add=flow.querySelector('.badd');const a=document.createElement('span');a.className='barr';a.textContent='›';const n=document.createElement('div');n.className='bnode';n.innerHTML=`<div class="bn-type">Task</div><div class="bn-name">New step ${bnCount}</div><div class="bn-own">Unassigned</div>`;n.onclick=function(){selBN(this)};flow.insertBefore(a,add);flow.insertBefore(n,add);selBN(n);setTimeout(()=>{const i=document.getElementById('cfg-name');i.focus();i.select()},50)}
+function launchFlow(){const btn=document.getElementById('btn-lnch');btn.textContent='Launching…';btn.disabled=true;setTimeout(()=>{navigate('pipeline');btn.textContent='Launch transaction';btn.disabled=false},1200)}
+function saveTpl(){const btn=document.getElementById('btn-save');btn.textContent='Saved ✓';btn.style.color='var(--gdk)';btn.style.borderColor='rgba(5,150,105,.3)';setTimeout(()=>{btn.textContent='Save template';btn.style.color='';btn.style.borderColor=''},2000)}
+
+/* ═════ COUNT-UP ═════ */
+function countUp(el,target,pre,suf,dur){const s=Date.now(),isF=target%1!==0;function t(){const p=Math.min((Date.now()-s)/dur,1),e=1-Math.pow(1-p,3),v=target*e;el.textContent=pre+(isF?v.toFixed(1):Math.round(v))+suf;if(p<1)requestAnimationFrame(t)}requestAnimationFrame(t)}
+window.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(()=>countUp(document.getElementById('m1'),3,'','',900),200);
+  setTimeout(()=>countUp(document.getElementById('m2'),3.2,'$','M',1100),300);
+  setTimeout(()=>countUp(document.getElementById('m3'),8,'','',900),400);
+});
+
+/* ═════ INSIGHT BARS ═════ */
+let barsAnimated=false;
+function animateBars(){
+  if(barsAnimated)return;barsAnimated=true;
+  document.querySelectorAll('.ins-bar').forEach(el=>{
+    const w=el.dataset.w;el.style.width='0';
+    setTimeout(()=>{el.style.width=w},50);
+  });
+}
+
+/* ═════ LIVE TIMERS ═════ */
+document.querySelectorAll('[data-elapsed]').forEach(el=>{const s=parseInt(el.dataset.elapsed);const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);el.textContent=h>0?`${h}h ${m}m`:`${m}m`});
+setInterval(()=>{document.querySelectorAll('[data-elapsed]').forEach(el=>{let s=parseInt(el.dataset.elapsed)+60;el.dataset.elapsed=s;const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);el.textContent=h>0?`${h}h ${m}m`:`${m}m`})},60000);
+</script>
+</body>
+</html>
